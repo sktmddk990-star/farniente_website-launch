@@ -1,87 +1,73 @@
-document.addEventListener('DOMContentLoaded', () => {
-
+window.addEventListener('scroll', () => {
   const navbar = document.querySelector('.navbar');
-  if (navbar) {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 50) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
-      }
-    });
-  }
-
-  const hamBtn = document.getElementById('hamBtn');
-  const navMenu = document.getElementById('navMenu');
-
-  if (hamBtn && navMenu) {
-    hamBtn.addEventListener('click', () => {
-      hamBtn.classList.toggle('active');
-      navMenu.classList.toggle('active');
-      document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
-    });
-
-    navMenu.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        hamBtn.classList.remove('active');
-        navMenu.classList.remove('active');
-        document.body.style.overflow = '';
-      });
-    });
-
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 992 && navMenu.classList.contains('active')) {
-        hamBtn.classList.remove('active');
-        navMenu.classList.remove('active');
-        document.body.style.overflow = '';
-      }
-    });
-  }
-
-  const slides = document.querySelectorAll('.slide-img');
-  let currentSlide = 0;
-  if (slides.length > 1) {
-    setInterval(() => {
-      slides[currentSlide].classList.remove('active');
-      currentSlide = (currentSlide + 1) % slides.length;
-      slides[currentSlide].classList.add('active');
-    }, 6000);
-  }
-
-  const fadeElements = document.querySelectorAll('.js-fade-up');
-  if (fadeElements.length > 0) {
-    const fadeObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-        } else {
-          entry.target.classList.remove('is-visible');
-        }
-      });
-    }, { 
-      threshold: 0.1,
-      rootMargin: "0px 0px -50px 0px"
-    });
-
-    fadeElements.forEach(el => fadeObserver.observe(el));
-  }
-
-  const tabBtns = document.querySelectorAll('.tab-btn');
-  const tabContents = document.querySelectorAll('.tab-content');
-  
-  if (tabBtns.length > 0) {
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        tabBtns.forEach(b => b.classList.remove('active'));
-        tabContents.forEach(c => c.classList.remove('active'));
-        
-        btn.classList.add('active');
-        const targetId = btn.getAttribute('data-tab');
-        const targetContent = document.getElementById(targetId);
-        if (targetContent) {
-          targetContent.classList.add('active');
-        }
-      });
-    });
+  if (window.scrollY > 10) {
+    navbar.classList.add('scrolled');
+  } else {
+    navbar.classList.remove('scrolled');
   }
 });
+
+/* ---------- Value 섹션 스크롤 크로스페이드 ---------- */
+const valueSection = document.querySelector('.value-section');
+const valueItems = document.querySelectorAll('.value-item');
+
+function updateValueSection() {
+  const rect = valueSection.getBoundingClientRect();
+  const scrollableHeight = valueSection.offsetHeight - window.innerHeight;
+  let progress = -rect.top / scrollableHeight;
+  progress = Math.min(Math.max(progress, 0), 0.999);
+
+  const activeIndex = Math.floor(progress * valueItems.length);
+
+  valueItems.forEach((item, i) => {
+    item.classList.toggle('active', i === activeIndex);
+  });
+}
+
+window.addEventListener('scroll', updateValueSection);
+window.addEventListener('resize', updateValueSection);
+updateValueSection();
+
+/* ---------- Partnership 섹션: 세로 스크롤 -> 가로 이동 (부드럽게 보간 처리) ---------- */
+const partnershipSection = document.querySelector('.partnership-section');
+const partnershipSticky = document.querySelector('.partnership-sticky');
+const partnershipTrack = document.querySelector('.partnership-track');
+
+let partnershipTarget = 0;
+let partnershipCurrent = 0;
+
+const PARTNERSHIP_SCROLL_PACE = 1.4; // dial: 1.0 = 이동 거리만큼만 스크롤, 클수록 스크롤이 더 여유롭게 느껴짐 (기존엔 사실상 2.7배라 뒷부분이 텅 빈 스크롤이었음)
+
+// 로고 트랙 실제 너비에 맞춰 섹션 높이를 동적으로 계산 (죽은 스크롤 구간 제거)
+function setPartnershipHeight() {
+  const maxTranslate = partnershipTrack.scrollWidth - partnershipSticky.clientWidth;
+  partnershipSection.style.height = `${(maxTranslate * PARTNERSHIP_SCROLL_PACE) + window.innerHeight}px`;
+}
+
+function calcPartnershipTarget() {
+  const rect = partnershipSection.getBoundingClientRect();
+  const scrollableHeight = partnershipSection.offsetHeight - window.innerHeight;
+  let progress = -rect.top / scrollableHeight;
+  partnershipTarget = Math.min(Math.max(progress, 0), 1);
+}
+
+function animatePartnership() {
+  // 목표 지점(partnershipTarget)으로 매 프레임 조금씩 부드럽게 따라감
+  partnershipCurrent += (partnershipTarget - partnershipCurrent) * 0.08;
+
+  const maxTranslate = partnershipTrack.scrollWidth - partnershipSticky.clientWidth;
+  partnershipTrack.style.transform = `translate3d(-${partnershipCurrent * maxTranslate}px, 0, 0)`;
+
+  requestAnimationFrame(animatePartnership);
+}
+
+function refreshPartnershipLayout() {
+  setPartnershipHeight();
+  calcPartnershipTarget();
+}
+
+window.addEventListener('scroll', calcPartnershipTarget);
+window.addEventListener('resize', refreshPartnershipLayout);
+window.addEventListener('load', refreshPartnershipLayout);
+refreshPartnershipLayout();
+animatePartnership(); // rAF 루프 시작 (스크롤 이벤트에 직접 의존하지 않아 끊김 없이 부드러움)
