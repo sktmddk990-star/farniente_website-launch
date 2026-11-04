@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const copyright = document.querySelector('.footer-copyright');
+
+  if (copyright) {
+    const currentYear = new Date().getFullYear();
+    copyright.textContent = `© ${currentYear} farniente. All rights reserved.`;
+  }
 
   const navbar = document.querySelector('.navbar');
   if (navbar) {
@@ -58,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
           entry.target.classList.remove('is-visible');
         }
       });
-    }, { 
+    }, {
       threshold: 0.1,
       rootMargin: "0px 0px -50px 0px"
     });
@@ -68,13 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const tabBtns = document.querySelectorAll('.tab-btn');
   const tabContents = document.querySelectorAll('.tab-content');
-  
+
   if (tabBtns.length > 0) {
     tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         tabBtns.forEach(b => b.classList.remove('active'));
         tabContents.forEach(c => c.classList.remove('active'));
-        
+
         btn.classList.add('active');
         const targetId = btn.getAttribute('data-tab');
         const targetContent = document.getElementById(targetId);
