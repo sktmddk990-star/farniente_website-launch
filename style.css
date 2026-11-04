@@ -308,7 +308,7 @@ a {
 
 /* 3-2. 철학 */
 .gl-statement {
-  padding: 180px 5vw;
+  padding: 300px 5vw;
   display: flex;
   flex-direction: column;
   align-items: center;
