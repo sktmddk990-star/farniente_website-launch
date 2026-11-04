@@ -1398,10 +1398,10 @@ border-top: none;
 
   /* [A] 메인 페이지 (index.html) */
   .slide-img:first-child {
-    background-size: clamp(1250px, 333vw, 1600px) auto;
-    background-position: center bottom;
-    background-repeat: no-repeat;
-  }
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 
   .gl-statement {
     padding: clamp(80px, 12vh, 120px) 7vw;
@@ -2306,7 +2306,6 @@ border-top: none;
     gap: 20px;
     margin-bottom: 0;
     padding-bottom: clamp(6px, 1.5vh, 12px);
-    transform: translateY(-55px)!important;
   }
 
   .contact-meta {
@@ -2409,5 +2408,98 @@ border-top: none;
 
   .hb-split-section:last-of-type::after {
     display: none;
+  }
+}
+
+@media (max-width: 992px) {
+  .contact-wrapper {
+    height: auto;
+    min-height: 100svh;
+    overflow: visible;
+  }
+
+  .contact-inner {
+    height: auto;
+    gap: 48px;
+  }
+
+  .contact-title {
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  .contact-info {
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 992px) {
+  .career-main-wrapper {
+    height: auto;
+    min-height: 100svh;
+    overflow: visible;
+  }
+
+  .career-editorial-container {
+    height: auto;
+    flex-shrink: 0;
+    gap: 36px;
+  }
+
+  .career-hero-group,
+  .career-col-grid {
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 1023px) {
+  .footer {
+    padding: 28px 6vw;
+    gap: 20px;
+    font-size: 12px;
+  }
+
+  .footer-left {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .footer-info {
+    gap: 8px;
+  }
+
+  .footer-row {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+  }
+
+  .footer-label {
+    width: auto;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .footer-value {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .footer-bottom {
+    width: 100%;
+    align-items: flex-end;
+    text-align: right;
+    gap: 8px;
+  }
+
+  .footer-links {
+    justify-content: flex-end;
+  }
+
+  .footer-copyright {
+    font-size: 11px;
+    line-height: 1.5;
   }
 }
