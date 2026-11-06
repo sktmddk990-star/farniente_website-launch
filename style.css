@@ -2093,6 +2093,7 @@ border-top: none;
     max-width: 100%;
     text-align: left;
     word-break: keep-all;
+    overflow-wrap: normal;
     letter-spacing: -0.02em;
   }
 
@@ -2440,11 +2441,13 @@ border-top: none;
     height: auto;
     min-height: 100svh;
     overflow: visible;
+    padding-top: calc(clamp(80px, 11vh, 105px) + 24px);
   }
 
   .contact-inner {
     height: auto;
     gap: 48px;
+    /* padding-top: 20px; */
   }
 
   .contact-title {
