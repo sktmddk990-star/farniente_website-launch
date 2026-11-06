@@ -2087,15 +2087,16 @@ border-top: none;
   }
 
   .career-col-desc {
-    font-size: 0.88rem;
-    line-height: 1.55;
-    color: #666666;
-    max-width: 100%;
-    text-align: left;
-    word-break: keep-all;
-    overflow-wrap: normal;
-    letter-spacing: -0.02em;
-  }
+  width: 100%;
+  max-width: 100%;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #666666;
+  text-align: left;
+  word-break: keep-all;
+  text-wrap: wrap;
+  letter-spacing: -0.02em;
+}
 
 
   /* [D] 파트너십 (partnership.html) */
