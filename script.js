@@ -91,3 +91,179 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const privacyLinks = document.querySelectorAll('.privacy-link');
+
+  if (!privacyLinks.length) return;
+
+  const dialog = document.createElement('dialog');
+
+  // Keep the ordinary page link if dialogs are unsupported.
+  if (typeof dialog.showModal !== 'function') return;
+
+  // Directly opened local files cannot reliably fetch other HTML files.
+  // In that case, the link opens privacy.html as a normal page.
+  if (window.location.protocol === 'file:') return;
+
+  dialog.className = 'privacy-dialog';
+  dialog.setAttribute('aria-labelledby', 'privacy-dialog-title');
+
+  dialog.innerHTML = `
+    <div class="privacy-dialog-header">
+      <h2 id="privacy-dialog-title" class="privacy-dialog-title">
+        개인정보처리방침
+      </h2>
+
+      <button
+        type="button"
+        class="privacy-dialog-close"
+        autofocus
+      >
+        닫기
+      </button>
+    </div>
+
+    <div class="privacy-dialog-body"></div>
+  `;
+
+  document.body.appendChild(dialog);
+
+  const dialogBody = dialog.querySelector('.privacy-dialog-body');
+  const closeButton = dialog.querySelector('.privacy-dialog-close');
+
+  let contentLoaded = false;
+  let loading = false;
+  let openingLink = null;
+
+  async function loadPolicy(url) {
+    if (contentLoaded || loading) return;
+
+    loading = true;
+    dialogBody.setAttribute('aria-busy', 'true');
+
+    dialogBody.innerHTML = `
+      <p class="privacy-dialog-message" role="status">
+        개인정보 처리방침을 불러오는 중입니다.
+      </p>
+    `;
+
+    try {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error('Privacy policy could not be loaded.');
+      }
+
+      const html = await response.text();
+
+      const policyPage = new DOMParser().parseFromString(
+        html,
+        'text/html'
+      );
+
+      const policyContent = policyPage.querySelector(
+        '.privacy-document'
+      );
+
+      if (!policyContent) {
+        throw new Error('Privacy policy content was not found.');
+      }
+
+      dialogBody.replaceChildren(
+        document.importNode(policyContent, true)
+      );
+
+      contentLoaded = true;
+    } catch (error) {
+      const message = document.createElement('p');
+      message.className = 'privacy-dialog-message';
+      message.setAttribute('role', 'alert');
+      message.textContent =
+        '내용을 불러오지 못했습니다. 아래 링크에서 확인해 주세요.';
+
+      const fallbackLink = document.createElement('a');
+      fallbackLink.href = url;
+      fallbackLink.textContent = '개인정보 처리방침 보기';
+
+      message.append(document.createElement('br'), fallbackLink);
+      dialogBody.replaceChildren(message);
+    } finally {
+      loading = false;
+      dialogBody.removeAttribute('aria-busy');
+    }
+  }
+
+  privacyLinks.forEach(link => {
+    link.addEventListener('click', event => {
+      // Preserve ordinary Ctrl/Cmd-click behavior.
+      if (
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (dialog.open) return;
+
+      openingLink = link;
+
+      dialog.showModal();
+      document.documentElement.classList.add('privacy-open');
+
+      dialogBody.scrollTop = 0;
+      loadPolicy(link.href);
+    });
+  });
+
+  closeButton.addEventListener('click', () => {
+    dialog.close();
+  });
+
+  function isOutsideDialog(event) {
+    const box = dialog.getBoundingClientRect();
+
+    return (
+      event.clientX < box.left ||
+      event.clientX > box.right ||
+      event.clientY < box.top ||
+      event.clientY > box.bottom
+    );
+  }
+
+  let pressStartedOutside = false;
+
+  dialog.addEventListener('pointerdown', event => {
+    pressStartedOutside =
+      event.target === dialog && isOutsideDialog(event);
+  });
+
+  dialog.addEventListener('pointercancel', () => {
+    pressStartedOutside = false;
+  });
+
+  dialog.addEventListener('click', event => {
+    if (
+      pressStartedOutside &&
+      event.target === dialog &&
+      isOutsideDialog(event)
+    ) {
+      dialog.close();
+    }
+
+    pressStartedOutside = false;
+  });
+
+  dialog.addEventListener('close', () => {
+    document.documentElement.classList.remove('privacy-open');
+    pressStartedOutside = false;
+
+    if (openingLink) {
+      openingLink.focus({ preventScroll: true });
+    }
+  });
+});
